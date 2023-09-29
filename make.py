@@ -1,25 +1,83 @@
 #######EXPERIMENTAL FEATURE########
+import random
+
+unlisted = []
+
 
 def send():
     grid = [[' ' for _ in range(15)] for _ in range(15)]
-    words = ["multiplication","labyrinth","happy","ambassador","architecture","navigate","deliberate"]
+    anus = []
+    clues = []
+    word_hint_dict = {
+    "elephant": "Largest land mammal with a trunk.",
+    "camera": "Device used to capture photographs.",
+    "journey": "A long trip or adventure.",
+    "musician": "Someone who plays musical instruments.",
+    "volcano": "A mountain that erupts with lava and ash.",
+    "television": "Electronic device for watching shows.",
+    "breakfast": "First meal of the day.",
+    "wisdom": "Knowledge gained through experience.",
+    "butterfly": "Insect known for its colorful wings.",
+    "happiness": "Feeling of joy and contentment.",
+    "recipe": "Instructions for cooking a dish.",
+    "rainbow": "Colorful arc in the sky after rain.",
+    "mountain": "Tall landform with peaks.",
+    "fireworks": "Explosive displays in the sky.",
+    "oxygen": "Essential gas for breathing.",
+    "teacher": "Educator in a classroom.",
+    "candle": "Wax stick used for illumination.",
+    "vacation": "Time off for relaxation and travel.",
+    "satellite": "Artificial object orbiting Earth.",
+    "guitar": "Stringed musical instrument.",
+    "island": "Landmass surrounded by water.",
+    "artist": "Creator of visual or performing art.",
+    "parade": "Procession of people and floats.",
+    "strawberry": "Red fruit often used in desserts.",
+    "friendship": "Close and supportive relationship.",
+    "bookstore": "Place to buy books.",
+    "mysterious": "Enigmatic or hard to understand.",
+    "festival": "A joyous celebration or event.",
+    "dolphin": "Intelligent marine mammal.",
+    "adventure": "Exciting or unusual experience.",
+    "chef": "Skilled cook.",
+    "curiosity": "Desire to learn and explore.",
+    "magician": "Performs tricks and illusions.",
+    "river": "Flowing water body.",
+    "constellation": "Group of stars forming a pattern.",
+    "eclipse": "Celestial event blocking the sun or moon.",
+    "tropical": "Relating to warm, humid regions.",
+    "history": "Study of past events.",
+    "dragonfly": "Insect with transparent wings.",
+    "chocolate": "Sweet treat made from cocoa.",
+    "celebration": "A festive event or party.",
+    "galaxy": "Vast system of stars and planets.",
+    "waterfall": "Cascading water over rocks.",
+    "painting": "Visual art on canvas.",
+    "balloon": "Inflated object for decoration.",
+    "architect": "Designer of buildings.",
+    "kingdom": "A realm or domain.",
+    "astronaut": "Person who travels in space.",
+    "spectacular": "Impressive and amazing."
+}
 
-    for index,letters in enumerate(words[0]):
+    word_list = list(word_hint_dict.keys())
+    random.shuffle(word_list)
+    word = word_list[:7]
+
+    for index,letters in enumerate(word[0]):
         grid[index][7] = letters
+    anus.append(word[0])
 
-    for row in grid:
-        print(row)
-
-    def find_pos(index):
+    def find_pos(words):
         for row in range(len(grid)):
             for col in range(len(grid[row])):  
-                for i in range(len(words[index])):  
-                    if words[index][i] == grid[row][col]:
-                        [cond , dir] = check_space(words[index][:i][::-1],words[index][i+1:],row,col)
+                for i in range(len(words)):  
+                    if words[i] == grid[row][col]:
+                        [cond , dir] = check_space(words[:i][::-1],words[i+1:],row,col)
                         if cond:
-                            print("Entered if")
-                            before = words[index][:i][::-1]
-                            after = words[index][i+1:]
+                            before = words[:i][::-1]
+                            after = words[i+1:]
+                            anus.append(words)
                             if dir == 'v':
                                 for i in range(len(before)):    
                                     grid[row-i-1][col] = before[i]
@@ -33,50 +91,51 @@ def send():
                                     grid[row][col+i+1] = after[i]
                                 
                             return
+        
+        unlisted.append(words)
 
                         
     def check_space(pre,post,row,col):
         if grid[row - 1][col] == ' ' or grid[row + 1][col] == ' ':
-            print("Entered vert")
-            for i in range(len(pre)):
-                if row-i > 0 and col +1 < 15 and col - 1 >= 0:
+            for i in range(len(pre) + 1):
+                if row-i > 0 and col +1 <= 15 and col - 1 >= 0:
                     if grid[row - i - 1][col] != ' ' or grid[row  - i - 1][col- 1] != ' ' or grid[row  - i - 1][col + 1] != ' ':
-                        print("im false")
                         return [False,' ']
                 else:
                     return [False,' ']
             for j in range(len(post) + 1):
-                if row+j < 14 and col + 1 < 15 and col - 1 >= 0:
+                if row+j < 14 and col + 1 <= 15 and col - 1 >= 0:
                     if grid[row + j + 1][col] != ' ' or grid[row  + j + 1][col- 1] != ' ' or grid[row  + j + 1][col + 1] != ' ':
-                        print("no iam")
                         return [False,' ']
                 else:
                     return [False,' ']
-            print("This line is vertical")
             return [True,'v']    
         
         if grid[row][col- 1] == ' ' or grid[row][col + 1] == ' ':
-            print("Entered hor")
-            for i in range(len(pre)):
-                if col-i > 0 and row + 1 < 15 and row - 1 >= 0:
+            for i in range(len(pre) + 1):
+                if col-i > 0 and row + 1 <= 15 and row - 1 >= 0:
                     if grid[row][col - i - 1] != ' ' or grid[row - 1][col - i - 1] != ' ' or grid[row + 1][col - i -1] != ' ':
                         return [False,' ']
                 else:
                     return [False,' ']
             for j in range(len(post) + 1):
-                if col+j < 14 and row + 1 < 15 and row - 1 >= 0:
+                if col+j < 14 and row + 1 <= 15 and row - 1 >= 0:
                     if grid[row][col + j + 1] != ' ' or grid[row - 1][col + j + 1] != ' ' or grid[row + 1][col + j + 1] != ' ':
                         return [False,' ']
                 else:
                     return [False,' ']
-            print("This line is horizontal")
             return [True,'h']
         return [False," "]
 
     for i in range(6):
-        find_pos(i+1)
-    for row in grid:
-        print(row)
-    
-    return grid
+        find_pos(word[i+1])
 
+    while len(anus) < 7:
+        find_pos(random.choice(word_list[8:]))
+
+    for ans in anus:
+        clues.append(word_hint_dict[ans])
+
+    return grid,anus,clues
+
+send()

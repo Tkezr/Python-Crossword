@@ -52,7 +52,7 @@ class crossword:
 
         for index, question in enumerate(self.questions):
             
-            self.text[index] = self.canvas.create_text(600,(350 + (index*50)),text = question,font=("Comic Sans MC",8,'bold'),fill=COLOR1)
+            self.text[index] = self.canvas.create_text(600,(350 + (index*50)),text = "{}. {}".format(index+1,question),font=("Comic Sans MC",8,'bold'),fill=COLOR1)
             
             self.entry[index] = tk.Entry(self.game)
             self.canvas.create_window(600,(370 + (index*50)), window=self.entry[index])
