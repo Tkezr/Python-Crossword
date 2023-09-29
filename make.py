@@ -6,7 +6,7 @@ unlisted = []
 
 def send():
     grid = [[' ' for _ in range(15)] for _ in range(15)]
-    anus = []
+    ans = []
     clues = []
     word_hint_dict = {
     "elephant": "Largest land mammal with a trunk.",
@@ -66,7 +66,7 @@ def send():
 
     for index,letters in enumerate(word[0]):
         grid[index][7] = letters
-    anus.append(word[0])
+    ans.append(word[0])
 
     def find_pos(words):
         for row in range(len(grid)):
@@ -77,7 +77,7 @@ def send():
                         if cond:
                             before = words[:i][::-1]
                             after = words[i+1:]
-                            anus.append(words)
+                            ans.append(words)
                             if dir == 'v':
                                 for i in range(len(before)):    
                                     grid[row-i-1][col] = before[i]
@@ -130,12 +130,18 @@ def send():
     for i in range(6):
         find_pos(word[i+1])
 
-    while len(anus) < 7:
-        find_pos(random.choice(word_list[8:]))
+    failsafe = 0
+    while len(ans) < 7:
+        try:
+            find_pos(random.choice(word_list[8:]))
+            failsafe += 1
+        except:
+            continue
+        if failsafe == 30:
+            print("failsafe")
+            return(send())
+    for a in ans:
+        clues.append(word_hint_dict[a])
 
-    for ans in anus:
-        clues.append(word_hint_dict[ans])
-
-    return grid,anus,clues
-
-send()
+    print(ans)
+    return clues,ans,grid

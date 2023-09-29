@@ -1,4 +1,4 @@
-import gen
+from make import send
 import tkinter as tk
 import tkinter.ttk as ttk
 from tkinter import PhotoImage
@@ -8,6 +8,7 @@ FCOLOR = "#8B5742"
 COLOR1 = "#E9967A"
 COLOR2 = "#006400"
 COLORG = "#66CDAA"
+THEME = "Snow"
 
 class crossword:
 
@@ -23,7 +24,7 @@ class crossword:
         self.hints = [0 for _ in range (7)]
         self.ans_num = [None for _ in range(7)]
         self.guess = [0 for _ in range(7)]
-        [self.questions , self.answer , self.grid] = gen.crossword_gen()
+        [self.questions , self.answer , self.grid] = send()
 
         self.canvas = tk.Canvas(self.game, width=1280, height=720)
         self.canvas.pack(fill="both", expand=True)
@@ -158,6 +159,8 @@ def create_crossword():
     new_game = crossword()
     mainmenu.pack_forget()
     new_game.game.pack()
+
+
 
 root = tk.Tk()
 icon = PhotoImage(file='cwicon.png')
