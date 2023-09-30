@@ -62,11 +62,9 @@ def send():
 
     word_list = list(word_hint_dict.keys())
     random.shuffle(word_list)
-    word = word_list[:7]
-
-    for index,letters in enumerate(word[0]):
+    for index,letters in enumerate(word_list[0]):
         grid[index][7] = letters
-    ans.append(word[0])
+    ans.append(word_list[0])
 
     def find_pos(words):
         for row in range(len(grid)):
@@ -127,19 +125,18 @@ def send():
             return [True,'h']
         return [False," "]
 
-    for i in range(6):
-        find_pos(word[i+1])
 
     failsafe = 0
     while len(ans) < 7:
-        try:
-            find_pos(random.choice(word_list[8:]))
-            failsafe += 1
-        except:
-            continue
-        if failsafe == 30:
-            print("failsafe")
-            return(send())
+        ran_word = random.choice(word_list[1:])
+        if ran_word not in ans:
+            try:
+                find_pos(ran_word)
+                failsafe += 1
+            except:
+                continue
+            if failsafe == 30:
+                return(send())
     for a in ans:
         clues.append(word_hint_dict[a])
 

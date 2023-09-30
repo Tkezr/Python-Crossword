@@ -3,12 +3,11 @@ import tkinter as tk
 import tkinter.ttk as ttk
 from tkinter import PhotoImage
 
-CELL = 20
+CELL = 40
 FCOLOR = "#8B5742"
 COLOR1 = "#E9967A"
 COLOR2 = "#006400"
 COLORG = "#66CDAA"
-THEME = "Snow"
 
 class crossword:
 
@@ -24,6 +23,7 @@ class crossword:
         self.hints = [0 for _ in range (7)]
         self.ans_num = [None for _ in range(7)]
         self.guess = [0 for _ in range(7)]
+        self.leaderboard_data =[]
         [self.questions , self.answer , self.grid] = send()
 
         self.canvas = tk.Canvas(self.game, width=1280, height=720)
@@ -33,38 +33,61 @@ class crossword:
             for col in range(self.num_cols):
                 if self.grid[row][col] != ' ':
                     
-                    x1 = col * CELL + (1280 - 160 - 640)
-                    y1 = row * CELL + (25)
+                    x1 = col * CELL + (100)
+                    y1 = row * CELL + (80)
                     x2 = x1 + CELL 
                     y2 = y1 + CELL 
                     center_x = (x1 + x2) // 2
                     center_y = (y1 + y2) // 2
-                    self.box[row][col] = self.canvas.create_text(center_x, center_y, text=self.grid[row][col].upper(), font=("Helvetica", 10),state = tk.HIDDEN,fill=COLORG)
+                    self.box[row][col] = self.canvas.create_text(center_x, center_y, text=self.grid[row][col].upper(), font=("Helvetica", 14),state = tk.HIDDEN,fill=COLORG)
                     self.canvas.create_rectangle(x1, y1, x2, y2, outline=COLOR1)
                 
 
         i=1
         for ans in self.answer:
             [row , col , __] = self.find(ans)    
-            x1 = col * CELL + (1280 - 160 - 640)
-            y1 = row * CELL + (25)
-            self.ans_num[i-1] = self.canvas.create_text(x1 + 4,y1 + 6, text=i, font=("Helvetica", 6),state = tk.NORMAL,fill=COLOR1)
+            x1 = col * CELL + (100)
+            y1 = row * CELL + (80)
+            self.ans_num[i-1] = self.canvas.create_text(x1 + 6,y1 + 8, text=i, font=("Helvetica", 8),state = tk.NORMAL,fill=COLOR1)
             i+=1
 
         for index, question in enumerate(self.questions):
             
-            self.text[index] = self.canvas.create_text(600,(350 + (index*50)),text = "{}. {}".format(index+1,question),font=("Comic Sans MC",8,'bold'),fill=COLOR1)
+            self.text[index] = self.canvas.create_text(900,(160 + (index*60)),text = "{}. {}".format(index+1,question),font=("Comic Sans MC",12,'bold'),fill=COLOR1)
             
             self.entry[index] = tk.Entry(self.game)
-            self.canvas.create_window(600,(370 + (index*50)), window=self.entry[index])
+            self.canvas.create_window(900,(190 + (index*60)), window=self.entry[index])
             self.entry[index].bind("<Return>", self.submit)
 
             self.hint[index] = tk.Button(self.game,text="Hint",background=COLOR2,
                   foreground=COLOR1,width=5,font=('Arial',8,'bold'),
                   command = lambda index=index: self.hintreveal(self.answer[index]))
-            self.canvas.create_window(700,(370 + (index*50)), window=self.hint[index])
+            self.canvas.create_window(1000,(190 + (index*60)), window=self.hint[index])
         
+    def save_score(self):
+        with open('scores.txt', 'r') as file:
+            lines = file.readlines()
+        updated = False
+        for i, line in enumerate(lines):
+            [existing_name , score] = line.strip().split(',')
+            if existing_name == USER.lower() and int(score) > self.hints_used:
+                lines[i] = "\n{},{}".format(USER.lower(), self.hints_used)
+                updated = True
+                break
 
+        if not updated:
+            with open('scores.txt', 'a') as file:
+                file.write('\n{},{}'.format(USER.lower(),self.hints_used))
+        else:
+            with open('scores.txt', 'w') as file:
+                file.writelines(lines)
+        with open('scores.txt', 'r') as file:
+            for line in file:
+                parts = line.strip().split(',')
+                if len(parts) == 2 and parts[0].lower() not in self.leaderboard_data:
+                    name, score = parts
+                    self.leaderboard_data.append((name, int(score)))
+        self.leaderboard_data.sort(key=lambda x: x[1])
 
     def complete(self):
         flag = 0
@@ -88,6 +111,11 @@ class crossword:
                   border=0,
                   font=('Arial',18,'bold'),command=lambda: [self.game.pack_forget(), mainmenu.pack()])
                 self.end_canvas.create_window(550,230, anchor="nw", window=button)
+                self.save_score()
+                self.end_canvas.create_text(650,350,text="Leaderboard",font=("Helvetica", 24, "bold"), fill=FCOLOR)
+                self.end_canvas.create_text(650, 390, text="Rank\t\tName\t\tScore", font=("Helvetica", 24, "bold"), fill=FCOLOR)
+                for rank, (name, score) in enumerate(self.leaderboard_data[:5], start=1):
+                    self.end_canvas.create_text(650,410 + (50*rank), text=f"{rank}\t\t{name}\t\t{score}", font=("Helvetica", 24), fill= COLORG)
         
 
     def check_word_right(self, word, row, col):
@@ -159,7 +187,18 @@ def create_crossword():
     new_game = crossword()
     mainmenu.pack_forget()
     new_game.game.pack()
+    print(USER)
 
+def store_user(ok):
+    global USER
+    if user_entry.get() != '':
+        USER = user_entry.get()
+        menu_canvas.delete(user_text)
+        menu_canvas.delete(user_entry_canvas)
+        menu_canvas.delete(err_text)
+        menu_canvas.itemconfig(start_button,state = tk.NORMAL)
+    else:
+        menu_canvas.itemconfig(err_text,text = "Write a valid username!")
 
 
 root = tk.Tk()
@@ -177,7 +216,11 @@ menu_canvas = tk.Canvas(mainmenu, width=1280, height=720)
 menu_canvas.pack(fill="both", expand=True)
 menu_canvas.create_image(-200,-200, image = bgz , anchor ="nw")
 menu_canvas.create_text(650,150, text="The Crossword Puzzle", font=("Helvetica",36,'bold'), fill=FCOLOR)
-
+user_text = menu_canvas.create_text(650,200,text="Enter User Name:", font=("Helvetica",16), fill=FCOLOR)
+err_text = menu_canvas.create_text(650,370,text="", font=("Helvetica",18,'bold'), fill=FCOLOR)
+user_entry = tk.Entry(mainmenu)
+user_entry_canvas = menu_canvas.create_window(650,230, window=user_entry)
+user_entry.bind("<Return>", store_user)
 start = tk.Button(mainmenu,
                   background=COLOR2,
                   foreground=COLOR1,
@@ -190,7 +233,7 @@ start = tk.Button(mainmenu,
                   border=0,
                   font=('Arial',18,'bold'),
                   command= create_crossword)
-start_button = menu_canvas.create_window(550,230, anchor="nw", window=start)
+start_button = menu_canvas.create_window(550,250, anchor="nw", window=start, state= tk.HIDDEN)
 mainmenu.pack()
 
 
