@@ -69,11 +69,15 @@ class crossword:
             lines = file.readlines()
         updated = False
         for i, line in enumerate(lines):
-            [existing_name , score] = line.strip().split(',')
-            if existing_name == USER.lower() and int(score) > self.hints_used:
-                lines[i] = "\n{},{}".format(USER.lower(), self.hints_used)
-                updated = True
-                break
+            vals = line.strip().split(',')
+            if len(vals) == 2:
+                [existing_name , score] = vals
+                if existing_name == USER.lower():
+                    updated = True
+                    if int(score) >= self.hints_used:
+                        lines[i] = "{},{}\n".format(USER.lower(), self.hints_used)
+
+                    break
 
         if not updated:
             with open('scores.txt', 'a') as file:
@@ -115,7 +119,7 @@ class crossword:
                 self.end_canvas.create_text(650,350,text="Leaderboard",font=("Helvetica", 24, "bold"), fill=FCOLOR)
                 self.end_canvas.create_text(650, 390, text="Rank\t\tName\t\tScore", font=("Helvetica", 24, "bold"), fill=FCOLOR)
                 for rank, (name, score) in enumerate(self.leaderboard_data[:5], start=1):
-                    self.end_canvas.create_text(650,410 + (50*rank), text=f"{rank}\t\t{name}\t\t{score}", font=("Helvetica", 24), fill= COLORG)
+                    self.end_canvas.create_text(650,410 + (50*rank), text="{}\t\t{}\t\t{}".format(rank,name.capitalize(),score), font=("Helvetica", 24), fill= COLORG)
         
 
     def check_word_right(self, word, row, col):
@@ -187,7 +191,6 @@ def create_crossword():
     new_game = crossword()
     mainmenu.pack_forget()
     new_game.game.pack()
-    print(USER)
 
 def store_user(ok):
     global USER
